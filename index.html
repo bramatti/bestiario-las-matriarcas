@@ -10,453 +10,194 @@
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <title>Las Matriarcas</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+:root {
+  --g1:#1C3A0A; --g2:#3B6D11; --g3:#639922; --g4:#C0DD97; --g5:#EAF3DE;
+  --text:#1a1a1a; --text2:#555; --text3:#999;
+  --bg:#fff; --bg2:#f5f5f3; --bg3:#ececea;
+  --brd:rgba(0,0,0,0.10); --brd2:rgba(0,0,0,0.18);
+  --r:12px; --r2:8px;
+  --st: env(safe-area-inset-top,0px);
+  --sb: env(safe-area-inset-bottom,0px);
+}
+@media(prefers-color-scheme:dark){:root{
+  --text:#f0f0ee; --text2:#aaa; --text3:#666;
+  --bg:#111; --bg2:#1d1d1b; --bg3:#272725;
+  --brd:rgba(255,255,255,0.08); --brd2:rgba(255,255,255,0.16);
+  --g5:#172b0a; --g4:#234010;
+}}
+html,body{height:100%;background:var(--g1);font-family:-apple-system,'Helvetica Neue',sans-serif;color:var(--text);overscroll-behavior:none;}
+.app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto;background:var(--bg);position:relative;overflow:hidden;}
 
-    :root {
-      --g1: #1C3A0A;
-      --g2: #3B6D11;
-      --g3: #639922;
-      --g4: #C0DD97;
-      --g5: #EAF3DE;
-      --text: #1a1a1a;
-      --text-sec: #555;
-      --text-ter: #999;
-      --bg: #ffffff;
-      --bg-sec: #f5f5f3;
-      --border: rgba(0,0,0,0.1);
-      --border-med: rgba(0,0,0,0.18);
-      --radius: 12px;
-      --radius-sm: 8px;
-      --safe-top: env(safe-area-inset-top, 0px);
-      --safe-bottom: env(safe-area-inset-bottom, 0px);
-    }
+/* HEADER */
+.header{background:var(--g1);padding:calc(var(--st) + 14px) 16px 14px;color:#fff;flex-shrink:0;}
+.header-eye{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;opacity:.55;margin-bottom:2px;}
+.header-title{font-size:22px;font-weight:600;letter-spacing:-.3px;}
+.header-sub{font-size:12px;opacity:.5;margin-top:1px;min-height:16px;}
 
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --text: #f0f0ee;
-        --text-sec: #aaa;
-        --text-ter: #666;
-        --bg: #111;
-        --bg-sec: #1e1e1c;
-        --border: rgba(255,255,255,0.08);
-        --border-med: rgba(255,255,255,0.15);
-        --g5: #1a2e0d;
-        --g4: #2a4d10;
-      }
-    }
+/* NAV */
+.nav{display:flex;background:#142d07;flex-shrink:0;}
+.nav-btn{flex:1;padding:10px 4px;border:none;background:transparent;color:rgba(255,255,255,.45);font-size:12px;cursor:pointer;border-bottom:2px solid transparent;font-family:inherit;transition:color .15s;}
+.nav-btn.active{color:#A8D87A;border-bottom-color:#A8D87A;}
 
-    html, body {
-      height: 100%;
-      background: var(--g1);
-      font-family: -apple-system, 'Helvetica Neue', sans-serif;
-      color: var(--text);
-      overscroll-behavior: none;
-    }
+/* SCREENS */
+.content{flex:1;overflow:hidden;display:flex;flex-direction:column;}
+.screen{display:none;flex-direction:column;flex:1;overflow:hidden;}
+.screen.active{display:flex;}
 
-    .app {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      max-width: 480px;
-      margin: 0 auto;
-      background: var(--bg);
-      position: relative;
-      overflow: hidden;
-    }
+/* STATES */
+.st-load,.st-err{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:32px;text-align:center;}
+.spinner{width:32px;height:32px;border:2px solid var(--brd);border-top-color:var(--g2);border-radius:50%;animation:spin .75s linear infinite;}
+.st-load p,.st-err p{font-size:13px;color:var(--text2);line-height:1.6;}
+.btn-retry{padding:9px 22px;border:1px solid var(--g2);border-radius:20px;background:var(--g5);color:var(--g2);font-size:13px;cursor:pointer;font-family:inherit;}
 
-    /* HEADER */
-    .header {
-      background: var(--g1);
-      padding: calc(var(--safe-top) + 14px) 16px 14px;
-      color: #fff;
-      flex-shrink: 0;
-    }
-    .header-eyebrow {
-      font-size: 10px;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      opacity: 0.55;
-      margin-bottom: 2px;
-    }
-    .header-title { font-size: 22px; font-weight: 600; letter-spacing: -0.3px; }
-    .header-sub { font-size: 12px; opacity: 0.5; margin-top: 1px; }
+/* SEARCH */
+.search-wrap{padding:10px 14px 6px;flex-shrink:0;}
+.search-input{width:100%;background:var(--bg2);border:1px solid var(--brd);border-radius:22px;padding:9px 16px;font-size:14px;color:var(--text);font-family:inherit;outline:none;}
+.search-input::placeholder{color:var(--text3);}
 
-    /* NAV */
-    .nav {
-      display: flex;
-      background: #142d07;
-      flex-shrink: 0;
-    }
-    .nav-btn {
-      flex: 1;
-      padding: 10px 4px;
-      border: none;
-      background: transparent;
-      color: rgba(255,255,255,0.45);
-      font-size: 12px;
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-      font-family: inherit;
-      transition: color 0.15s;
-    }
-    .nav-btn.active { color: #A8D87A; border-bottom-color: #A8D87A; }
+/* SPECIES LIST — fotos maiores */
+.species-list{overflow-y:auto;padding:4px 14px 12px;flex:1;-webkit-overflow-scrolling:touch;}
+.species-card{display:flex;align-items:center;gap:12px;padding:10px;border:1px solid var(--brd);border-radius:var(--r);margin-bottom:8px;cursor:pointer;background:var(--bg);transition:background .12s;}
+.species-card:active{background:var(--bg2);}
+.species-thumb{width:72px;height:72px;border-radius:var(--r2);background:var(--bg2);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text3);}
+.species-thumb img{width:100%;height:100%;object-fit:cover;}
+.species-info{flex:1;min-width:0;}
+.species-name{font-size:14px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.species-sci{font-size:11px;color:var(--text2);font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;}
+.species-fam{font-size:10px;color:var(--text3);margin-top:1px;}
+.badge{font-size:10px;padding:3px 8px;border-radius:12px;white-space:nowrap;flex-shrink:0;background:var(--g5);color:var(--g2);}
+.badge.pending{background:#FEF3C7;color:#92400E;}
 
-    /* CONTENT */
-    .content { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
-    .screen { display: none; flex-direction: column; flex: 1; overflow: hidden; }
-    .screen.active { display: flex; }
+/* MODAL */
+.modal-bd{display:none;position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:100;align-items:flex-end;}
+.modal-bd.open{display:flex;animation:fadeIn .2s;}
+.modal-sheet{background:var(--bg);border-radius:20px 20px 0 0;padding:16px 18px calc(var(--sb) + 20px);width:100%;animation:slideUp .25s ease-out;max-height:92vh;overflow-y:auto;}
+.modal-handle{width:40px;height:4px;background:var(--brd2);border-radius:2px;margin:0 auto 16px;}
 
-    /* STATES */
-    .state-loading, .state-error {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 14px;
-      padding: 32px;
-      text-align: center;
-    }
-    .spinner {
-      width: 32px; height: 32px;
-      border: 2px solid var(--border);
-      border-top-color: var(--g2);
-      border-radius: 50%;
-      animation: spin 0.75s linear infinite;
-    }
-    .state-loading p { font-size: 13px; color: var(--text-sec); }
-    .state-error p { font-size: 13px; color: var(--text-sec); line-height: 1.6; }
-    .btn-retry {
-      padding: 9px 22px;
-      border: 1px solid var(--g2);
-      border-radius: 20px;
-      background: var(--g5);
-      color: var(--g2);
-      font-size: 13px;
-      cursor: pointer;
-      font-family: inherit;
-    }
+/* Modal hero foto */
+.modal-hero{width:100%;height:200px;border-radius:var(--r);background:var(--bg2);overflow:hidden;margin-bottom:14px;position:relative;display:flex;align-items:center;justify-content:center;}
+.modal-hero img{width:100%;height:100%;object-fit:cover;}
+.modal-hero-empty{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--text3);font-size:12px;}
+.hero-upload-btn{position:absolute;bottom:10px;right:10px;background:rgba(28,58,10,.85);color:#A8D87A;border:none;border-radius:20px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;}
 
-    /* SEARCH */
-    .search-wrap { padding: 10px 14px 6px; flex-shrink: 0; }
-    .search-input {
-      width: 100%;
-      background: var(--bg-sec);
-      border: 1px solid var(--border);
-      border-radius: 22px;
-      padding: 9px 16px;
-      font-size: 14px;
-      color: var(--text);
-      font-family: inherit;
-      outline: none;
-    }
-    .search-input::placeholder { color: var(--text-ter); }
-    .search-input:focus { border-color: var(--border-med); }
+.modal-info{margin-bottom:14px;}
+.modal-name{font-size:17px;font-weight:600;color:var(--text);}
+.modal-sci{font-size:12px;color:var(--text2);font-style:italic;margin-top:2px;}
+.modal-fam{font-size:11px;color:var(--text3);margin-top:1px;}
 
-    /* SPECIES LIST */
-    .species-list { overflow-y: auto; padding: 4px 14px 12px; flex: 1; -webkit-overflow-scrolling: touch; }
-    .species-card {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      margin-bottom: 7px;
-      cursor: pointer;
-      background: var(--bg);
-      transition: border-color 0.12s, background 0.12s;
-      -webkit-user-select: none;
-    }
-    .species-card:active { background: var(--bg-sec); }
-    .species-thumb {
-      width: 44px; height: 44px;
-      border-radius: var(--radius-sm);
-      background: var(--bg-sec);
-      overflow: hidden;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      color: var(--text-ter);
-    }
-    .species-thumb img { width: 100%; height: 100%; object-fit: cover; }
-    .species-info { flex: 1; min-width: 0; }
-    .species-name { font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .species-sci { font-size: 11px; color: var(--text-sec); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
-    .species-fam { font-size: 10px; color: var(--text-ter); margin-top: 1px; }
-    .badge {
-      font-size: 10px;
-      padding: 3px 8px;
-      border-radius: 12px;
-      white-space: nowrap;
-      flex-shrink: 0;
-      background: var(--g5);
-      color: var(--g2);
-    }
-    .badge.pending { background: #FEF3C7; color: #92400E; }
+/* Upload preview */
+.upload-preview{display:none;width:100%;border-radius:var(--r2);overflow:hidden;margin-bottom:10px;border:1px solid var(--brd);position:relative;}
+.upload-preview img{width:100%;max-height:160px;object-fit:cover;display:block;}
+.upload-preview.show{display:block;}
+.upload-clear{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.5);color:#fff;border:none;border-radius:50%;width:24px;height:24px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;}
+.upload-section{margin-bottom:14px;}
+.upload-label{font-size:11px;color:var(--text2);margin-bottom:6px;}
+.upload-date-row{display:flex;gap:8px;margin-bottom:8px;}
+.upload-date-row input{flex:1;background:var(--bg2);border:1px solid var(--brd);border-radius:var(--r2);padding:8px 10px;font-size:13px;color:var(--text);font-family:inherit;outline:none;}
+.btn-pick-photo{width:100%;padding:10px;border:1px dashed var(--brd2);border-radius:var(--r2);background:transparent;color:var(--text2);font-size:13px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;}
+.btn-pick-photo:active{background:var(--bg2);}
+input[type=file]{display:none;}
 
-    /* MODAL */
-    .modal-backdrop {
-      display: none;
-      position: absolute;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 100;
-      align-items: flex-end;
-    }
-    .modal-backdrop.open { display: flex; animation: fadeIn 0.2s; }
-    .modal-sheet {
-      background: var(--bg);
-      border-radius: 20px 20px 0 0;
-      padding: 16px 18px calc(var(--safe-bottom) + 20px);
-      width: 100%;
-      animation: slideUp 0.25s ease-out;
-    }
-    .modal-handle {
-      width: 40px; height: 4px;
-      background: var(--border-med);
-      border-radius: 2px;
-      margin: 0 auto 16px;
-    }
-    .modal-header { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; }
-    .modal-img {
-      width: 56px; height: 56px;
-      border-radius: var(--radius);
-      background: var(--bg-sec);
-      overflow: hidden;
-      flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px; color: var(--text-ter);
-    }
-    .modal-img img { width: 100%; height: 100%; object-fit: cover; }
-    .modal-name { font-size: 16px; font-weight: 600; color: var(--text); }
-    .modal-sci { font-size: 12px; color: var(--text-sec); font-style: italic; }
-    .modal-fam { font-size: 11px; color: var(--text-ter); margin-top: 2px; }
-    .modal-label { font-size: 11px; color: var(--text-sec); margin-bottom: 8px; letter-spacing: 0.3px; }
-    .months-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; margin-bottom: 16px; }
-    .month-btn {
-      padding: 8px 4px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      background: var(--bg-sec);
-      font-size: 12px;
-      color: var(--text-sec);
-      cursor: pointer;
-      font-family: inherit;
-      transition: all 0.1s;
-    }
-    .month-btn.has { background: var(--g5); color: #27500A; border-color: var(--g3); }
-    .month-btn.sel { background: var(--g1); color: #A8D87A; border-color: var(--g1); font-weight: 600; }
-    .btn-confirm {
-      width: 100%;
-      padding: 14px;
-      background: var(--g1);
-      color: #A8D87A;
-      border: none;
-      border-radius: var(--radius);
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: inherit;
-      transition: opacity 0.15s;
-    }
-    .btn-confirm:disabled { opacity: 0.35; cursor: default; }
-    .btn-cancel {
-      width: 100%;
-      padding: 11px;
-      background: transparent;
-      border: none;
-      color: var(--text-ter);
-      font-size: 13px;
-      cursor: pointer;
-      font-family: inherit;
-      margin-top: 4px;
-    }
+.modal-label{font-size:11px;color:var(--text2);margin-bottom:8px;}
+.months-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:16px;}
+.month-btn{padding:8px 4px;border:1px solid var(--brd);border-radius:var(--r2);background:var(--bg2);font-size:12px;color:var(--text2);cursor:pointer;font-family:inherit;transition:all .1s;}
+.month-btn.has{background:var(--g5);color:#27500A;border-color:var(--g3);}
+.month-btn.sel{background:var(--g1);color:#A8D87A;border-color:var(--g1);font-weight:600;}
+.btn-confirm{width:100%;padding:14px;background:var(--g1);color:#A8D87A;border:none;border-radius:var(--r);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;}
+.btn-confirm:disabled{opacity:.35;cursor:default;}
+.btn-cancel{width:100%;padding:11px;background:transparent;border:none;color:var(--text3);font-size:13px;cursor:pointer;font-family:inherit;margin-top:4px;}
 
-    /* CONSULTAR */
-    .filter-bar { display: flex; gap: 6px; padding: 8px 14px 6px; overflow-x: auto; flex-shrink: 0; -webkit-overflow-scrolling: touch; }
-    .filter-bar::-webkit-scrollbar { display: none; }
-    .chip {
-      flex-shrink: 0;
-      padding: 5px 12px;
-      border: 1px solid var(--border-med);
-      border-radius: 16px;
-      font-size: 12px;
-      background: var(--bg-sec);
-      color: var(--text-sec);
-      cursor: pointer;
-      font-family: inherit;
-      transition: all 0.12s;
-    }
-    .chip.active { background: var(--g1); color: #A8D87A; border-color: var(--g1); }
-    .cal-view { padding: 8px 14px 16px; overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
-    .cal-month { margin-bottom: 16px; }
-    .cal-month-title {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-ter);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      padding-bottom: 6px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 8px;
-    }
-    .cal-pills { display: flex; flex-wrap: wrap; gap: 5px; }
-    .pill {
-      display: flex; align-items: center; gap: 5px;
-      padding: 4px 10px 4px 5px;
-      background: var(--bg-sec);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      font-size: 12px;
-      color: var(--text);
-    }
-    .pill-img {
-      width: 22px; height: 22px;
-      border-radius: 50%;
-      background: var(--bg);
-      overflow: hidden;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 9px; color: var(--text-ter);
-    }
-    .pill-img img { width: 100%; height: 100%; object-fit: cover; }
-    .cal-empty { font-size: 12px; color: var(--text-ter); font-style: italic; }
+/* Upload progress */
+.upload-progress{display:none;flex-direction:column;align-items:center;gap:8px;padding:12px;font-size:13px;color:var(--text2);}
+.upload-progress.show{display:flex;}
+.progress-bar{width:100%;height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;}
+.progress-fill{height:100%;background:var(--g2);border-radius:2px;transition:width .3s;}
 
-    /* STATS */
-    .stats-view { padding: 14px; overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
-    .stats-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; margin-bottom: 10px; }
-    .stat-card { background: var(--bg-sec); border-radius: var(--radius); padding: 14px; }
-    .stat-lbl { font-size: 11px; color: var(--text-sec); margin-bottom: 4px; }
-    .stat-val { font-size: 28px; font-weight: 600; color: var(--text); line-height: 1; }
-    .stat-sub { font-size: 11px; color: var(--text-ter); margin-top: 4px; }
-    .bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-    .bar-lbl { font-size: 11px; color: var(--text-sec); width: 26px; flex-shrink: 0; }
-    .bar-track { flex: 1; height: 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
-    .bar-fill { height: 100%; background: var(--g2); border-radius: 4px; transition: width 0.5s ease; }
-    .bar-n { font-size: 11px; color: var(--text-ter); width: 18px; text-align: right; flex-shrink: 0; }
+/* GALERIA */
+.gallery-screen{display:flex;flex-direction:column;flex:1;overflow:hidden;}
+.gallery-header{padding:10px 14px 6px;flex-shrink:0;}
+.gallery-species-select{width:100%;background:var(--bg2);border:1px solid var(--brd);border-radius:var(--r2);padding:9px 12px;font-size:14px;color:var(--text);font-family:inherit;outline:none;}
+.gallery-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:2px;overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;padding:2px;}
+.gallery-item{position:relative;aspect-ratio:1;overflow:hidden;cursor:pointer;background:var(--bg2);}
+.gallery-item img{width:100%;height:100%;object-fit:cover;display:block;}
+.gallery-caption{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.65));padding:20px 8px 6px;color:#fff;font-size:10px;line-height:1.3;}
+.gallery-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--text3);font-size:13px;padding:32px;text-align:center;}
 
-    /* BOTTOM BAR */
-    .bottom-bar {
-      background: var(--bg);
-      border-top: 1px solid var(--border);
-      padding: 8px 14px calc(var(--safe-bottom) + 8px);
-      flex-shrink: 0;
-    }
-    .sync-status { font-size: 10px; color: var(--text-ter); text-align: center; margin-bottom: 6px; }
-    .bottom-btns { display: flex; gap: 8px; }
-    .btn-reload {
-      flex: 1;
-      display: flex; align-items: center; justify-content: center; gap: 5px;
-      padding: 10px;
-      border: 1px solid var(--border-med);
-      border-radius: var(--radius-sm);
-      background: var(--bg-sec);
-      color: var(--text-sec);
-      font-size: 13px;
-      cursor: pointer;
-      font-family: inherit;
-    }
-    .btn-save {
-      flex: 2;
-      display: flex; align-items: center; justify-content: center; gap: 5px;
-      padding: 10px;
-      border: none;
-      border-radius: var(--radius-sm);
-      background: var(--g1);
-      color: #A8D87A;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      font-family: inherit;
-    }
-    .btn-save:disabled { opacity: 0.35; cursor: default; }
+/* LIGHTBOX */
+.lightbox{display:none;position:absolute;inset:0;background:rgba(0,0,0,.92);z-index:200;flex-direction:column;}
+.lightbox.open{display:flex;animation:fadeIn .2s;}
+.lightbox-header{display:flex;align-items:center;justify-content:space-between;padding:calc(var(--st)+12px) 16px 12px;color:#fff;flex-shrink:0;}
+.lightbox-title{font-size:14px;font-weight:500;}
+.lightbox-sub{font-size:11px;opacity:.6;margin-top:2px;}
+.lightbox-close{background:transparent;border:none;color:#fff;font-size:24px;cursor:pointer;padding:4px;line-height:1;}
+.lightbox-img{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:8px;}
+.lightbox-img img{max-width:100%;max-height:100%;object-fit:contain;border-radius:var(--r2);}
 
-    /* SAVING OVERLAY */
-    .saving-overlay {
-      display: none;
-      position: absolute; inset: 0;
-      background: rgba(28,58,10,0.88);
-      z-index: 200;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-    }
-    .saving-overlay.open { display: flex; }
-    .saving-spinner { width: 40px; height: 40px; border: 2px solid rgba(168,216,122,0.25); border-top-color: #A8D87A; border-radius: 50%; animation: spin 0.75s linear infinite; }
-    .saving-msg { color: #A8D87A; font-size: 14px; }
+/* CONSULTAR */
+.filter-bar{display:flex;gap:6px;padding:8px 14px 6px;overflow-x:auto;flex-shrink:0;-webkit-overflow-scrolling:touch;}
+.filter-bar::-webkit-scrollbar{display:none;}
+.chip{flex-shrink:0;padding:5px 12px;border:1px solid var(--brd2);border-radius:16px;font-size:12px;background:var(--bg2);color:var(--text2);cursor:pointer;font-family:inherit;transition:all .12s;}
+.chip.active{background:var(--g1);color:#A8D87A;border-color:var(--g1);}
+.cal-view{padding:8px 14px 16px;overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;}
+.cal-month{margin-bottom:16px;}
+.cal-month-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1px;padding-bottom:6px;border-bottom:1px solid var(--brd);margin-bottom:8px;}
+.cal-pills{display:flex;flex-wrap:wrap;gap:5px;}
+.pill{display:flex;align-items:center;gap:5px;padding:4px 10px 4px 5px;background:var(--bg2);border:1px solid var(--brd);border-radius:20px;font-size:12px;color:var(--text);}
+.pill-img{width:22px;height:22px;border-radius:50%;background:var(--bg);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--text3);}
+.pill-img img{width:100%;height:100%;object-fit:cover;}
+.cal-empty{font-size:12px;color:var(--text3);font-style:italic;}
 
-    /* INSTALL BANNER */
-    .install-banner {
-      display: none;
-      background: var(--g5);
-      border-top: 1px solid var(--g4);
-      padding: 10px 14px;
-      flex-shrink: 0;
-      flex-direction: row;
-      align-items: center;
-      gap: 10px;
-    }
-    .install-banner.show { display: flex; }
-    .install-banner p { flex: 1; font-size: 12px; color: var(--g2); line-height: 1.4; }
-    .btn-install {
-      padding: 7px 14px;
-      background: var(--g1);
-      color: #A8D87A;
-      border: none;
-      border-radius: var(--radius-sm);
-      font-size: 12px;
-      cursor: pointer;
-      font-family: inherit;
-      white-space: nowrap;
-    }
-    .btn-dismiss {
-      padding: 6px;
-      background: transparent;
-      border: none;
-      color: var(--g3);
-      font-size: 16px;
-      cursor: pointer;
-      line-height: 1;
-    }
+/* STATS */
+.stats-view{padding:14px;overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;}
+.stats-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:10px;}
+.stat-card{background:var(--bg2);border-radius:var(--r);padding:14px;}
+.stat-lbl{font-size:11px;color:var(--text2);margin-bottom:4px;}
+.stat-val{font-size:28px;font-weight:600;color:var(--text);line-height:1;}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:4px;}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.bar-lbl{font-size:11px;color:var(--text2);width:26px;flex-shrink:0;}
+.bar-track{flex:1;height:8px;background:var(--bg);border:1px solid var(--brd);border-radius:4px;overflow:hidden;}
+.bar-fill{height:100%;background:var(--g2);border-radius:4px;transition:width .5s;}
+.bar-n{font-size:11px;color:var(--text3);width:18px;text-align:right;flex-shrink:0;}
 
-    /* TOAST */
-    .toast {
-      position: absolute;
-      bottom: 90px;
-      left: 14px; right: 14px;
-      background: var(--g1);
-      color: #A8D87A;
-      padding: 11px 16px;
-      border-radius: var(--radius);
-      font-size: 13px;
-      text-align: center;
-      z-index: 300;
-      line-height: 1.4;
-      animation: toastIn 0.2s ease-out;
-    }
+/* BOTTOM BAR */
+.bottom-bar{background:var(--bg);border-top:1px solid var(--brd);padding:8px 14px calc(var(--sb)+8px);flex-shrink:0;}
+.sync-status{font-size:10px;color:var(--text3);text-align:center;margin-bottom:6px;}
+.bottom-btns{display:flex;gap:8px;}
+.btn-reload{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:10px;border:1px solid var(--brd2);border-radius:var(--r2);background:var(--bg2);color:var(--text2);font-size:13px;cursor:pointer;font-family:inherit;}
+.btn-save{flex:2;display:flex;align-items:center;justify-content:center;gap:5px;padding:10px;border:none;border-radius:var(--r2);background:var(--g1);color:#A8D87A;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;}
+.btn-save:disabled{opacity:.35;cursor:default;}
 
-    @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-    @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
-    @keyframes toastIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-    .spinning { animation: spin 0.75s linear infinite; display: inline-block; }
-  </style>
+/* SAVING OVERLAY */
+.saving-ov{display:none;position:absolute;inset:0;background:rgba(28,58,10,.9);z-index:300;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
+.saving-ov.open{display:flex;}
+.saving-sp{width:40px;height:40px;border:2px solid rgba(168,216,122,.25);border-top-color:#A8D87A;border-radius:50%;animation:spin .75s linear infinite;}
+.saving-msg{color:#A8D87A;font-size:14px;}
+
+/* TOAST */
+.toast{position:absolute;bottom:90px;left:14px;right:14px;background:var(--g1);color:#A8D87A;padding:11px 16px;border-radius:var(--r);font-size:13px;text-align:center;z-index:400;line-height:1.4;animation:toastIn .2s ease-out;}
+
+@keyframes spin{from{transform:rotate(0)} to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0} to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(100%)} to{transform:translateY(0)}}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)}}
+.spinning{animation:spin .75s linear infinite;display:inline-block;}
+</style>
 </head>
 <body>
 <div class="app">
 
   <div class="header">
-    <div class="header-eyebrow">Avistamentos</div>
+    <div class="header-eye">Avistamentos</div>
     <div class="header-title">Las Matriarcas</div>
     <div class="header-sub" id="header-sub">Carregando...</div>
   </div>
 
   <div class="nav">
     <button class="nav-btn active" onclick="switchTab('registrar',this)">Registrar</button>
+    <button class="nav-btn" onclick="switchTab('galeria',this)">Galeria</button>
     <button class="nav-btn" onclick="switchTab('consultar',this)">Consultar</button>
     <button class="nav-btn" onclick="switchTab('stats',this)">Resumo</button>
   </div>
@@ -465,19 +206,31 @@
 
     <!-- REGISTRAR -->
     <div class="screen active" id="screen-registrar">
-      <div class="state-loading" id="reg-loading">
-        <div class="spinner"></div>
-        <p>Carregando planilha...</p>
-      </div>
-      <div class="state-error" id="reg-error" style="display:none">
-        <p id="reg-error-msg">Não foi possível conectar à planilha.</p>
+      <div class="st-load" id="reg-loading"><div class="spinner"></div><p>Carregando planilha...</p></div>
+      <div class="st-err" id="reg-error" style="display:none">
+        <p id="reg-error-msg">Não foi possível conectar.</p>
         <button class="btn-retry" onclick="loadData()">Tentar novamente</button>
       </div>
       <div id="reg-content" style="display:none;flex-direction:column;flex:1;overflow:hidden;">
         <div class="search-wrap">
-          <input class="search-input" type="search" placeholder="Buscar espécie..." id="search-input" oninput="renderList()" autocomplete="off" autocorrect="off" spellcheck="false">
+          <input class="search-input" type="search" placeholder="Buscar espécie..." id="search-input" oninput="renderList()" autocomplete="off" spellcheck="false">
         </div>
         <div class="species-list" id="species-list"></div>
+      </div>
+    </div>
+
+    <!-- GALERIA -->
+    <div class="screen" id="screen-galeria">
+      <div class="gallery-screen">
+        <div class="gallery-header">
+          <select class="gallery-species-select" id="gallery-select" onchange="loadGallery()">
+            <option value="">Selecione uma espécie...</option>
+          </select>
+        </div>
+        <div id="gallery-content" class="gallery-empty">
+          <span style="font-size:32px">📷</span>
+          <p>Selecione uma espécie para ver os avistamentos registrados</p>
+        </div>
       </div>
     </div>
 
@@ -494,15 +247,8 @@
 
   </div>
 
-  <!-- INSTALL BANNER -->
-  <div class="install-banner" id="install-banner">
-    <p>Adicione à tela inicial para usar como app nativo.</p>
-    <button class="btn-install" id="btn-install-pwa" onclick="installPWA()">Instalar</button>
-    <button class="btn-dismiss" onclick="dismissInstall()">×</button>
-  </div>
-
   <!-- BOTTOM BAR -->
-  <div class="bottom-bar">
+  <div class="bottom-bar" id="bottom-bar">
     <div class="sync-status" id="sync-status">—</div>
     <div class="bottom-btns">
       <button class="btn-reload" id="btn-reload" onclick="loadData()">
@@ -514,96 +260,107 @@
     </div>
   </div>
 
-  <!-- MODAL -->
-  <div class="modal-backdrop" id="modal" onclick="closeModalOutside(event)">
+  <!-- MODAL REGISTRO -->
+  <div class="modal-bd" id="modal" onclick="closeModalOutside(event)">
     <div class="modal-sheet">
       <div class="modal-handle"></div>
-      <div class="modal-header">
-        <div class="modal-img" id="modal-img"></div>
-        <div style="min-width:0;">
-          <div class="modal-name" id="modal-name"></div>
-          <div class="modal-sci" id="modal-sci"></div>
-          <div class="modal-fam" id="modal-fam"></div>
+
+      <!-- Hero foto -->
+      <div class="modal-hero" id="modal-hero">
+        <div class="modal-hero-empty" id="hero-empty">
+          <span style="font-size:36px;opacity:.3">🐾</span>
+          <span>Sem foto principal</span>
+        </div>
+        <img id="hero-img" src="" alt="" style="display:none" onerror="this.style.display='none';document.getElementById('hero-empty').style.display='flex'">
+        <button class="hero-upload-btn" onclick="triggerFileInput()">
+          <span>📷</span> Adicionar foto
+        </button>
+      </div>
+
+      <div class="modal-info">
+        <div class="modal-name" id="modal-name"></div>
+        <div class="modal-sci" id="modal-sci"></div>
+        <div class="modal-fam" id="modal-fam"></div>
+      </div>
+
+      <!-- Upload -->
+      <div class="upload-section">
+        <div class="upload-label">Foto do avistamento (opcional)</div>
+        <div class="upload-date-row">
+          <input type="date" id="upload-date" placeholder="Data">
+        </div>
+        <div class="upload-preview" id="upload-preview">
+          <img id="preview-img" src="" alt="">
+          <button class="upload-clear" onclick="clearUpload()">×</button>
+        </div>
+        <button class="btn-pick-photo" onclick="triggerFileInput()" id="btn-pick">
+          <span>📎</span> Escolher foto da câmera ou galeria
+        </button>
+        <input type="file" id="file-input" accept="image/*" capture="environment" onchange="handleFileSelect(event)">
+        <div class="upload-progress" id="upload-progress">
+          <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+          <span id="progress-label">Enviando para o Drive...</span>
         </div>
       </div>
-      <div class="modal-label">Selecione os meses do avistamento:</div>
+
+      <div class="modal-label">Meses do avistamento:</div>
       <div class="months-grid" id="months-grid"></div>
       <button class="btn-confirm" id="btn-confirm" onclick="confirmRecord()">Confirmar</button>
       <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
     </div>
   </div>
 
-  <!-- SAVING -->
-  <div class="saving-overlay" id="saving-overlay">
-    <div class="saving-spinner"></div>
-    <div class="saving-msg" id="saving-msg">Salvando na planilha...</div>
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox">
+    <div class="lightbox-header">
+      <div>
+        <div class="lightbox-title" id="lb-title"></div>
+        <div class="lightbox-sub" id="lb-sub"></div>
+      </div>
+      <button class="lightbox-close" onclick="closeLightbox()">×</button>
+    </div>
+    <div class="lightbox-img">
+      <img id="lb-img" src="" alt="">
+    </div>
   </div>
 
-</div><!-- .app -->
+  <!-- SAVING OVERLAY -->
+  <div class="saving-ov" id="saving-ov">
+    <div class="saving-sp"></div>
+    <div class="saving-msg" id="saving-msg">Salvando...</div>
+  </div>
+
+</div>
 
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyk5ni35LUztTDbZqYaXdP9UTt2nQ7Z8EunalCqi2M4sV-rX5uvTaasf19zenDFbuRu/exec';
-const MONTHS = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-const MONTH_NAMES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const MONTHS     = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const MONTH_NAMES= ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
-let species = [];
-let pending = {};
-let currentSpecies = null;
-let selectingMonths = [];
-let activeFilter = null;
-let currentTab = 'registrar';
-let lastSync = null;
-let deferredInstallPrompt = null;
+let species = [], pending = {}, currentSpecies = null, selectingMonths = [];
+let activeFilter = null, currentTab = 'registrar', lastSync = null;
+let pendingFile = null, pendingFileB64 = null, pendingFileMime = null;
 
-// PWA install
-window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault();
-  deferredInstallPrompt = e;
-  if (!localStorage.getItem('installDismissed')) {
-    document.getElementById('install-banner').classList.add('show');
-  }
-});
-function installPWA() {
-  if (!deferredInstallPrompt) return;
-  deferredInstallPrompt.prompt();
-  deferredInstallPrompt.userChoice.then(() => {
-    deferredInstallPrompt = null;
-    document.getElementById('install-banner').classList.remove('show');
-  });
-}
-function dismissInstall() {
-  localStorage.setItem('installDismissed', '1');
-  document.getElementById('install-banner').classList.remove('show');
-}
-
-// DATA
+// ── LOAD ─────────────────────────────────────────────────────
 async function loadData() {
   showRegState('loading');
   setReloadSpin(true);
   document.getElementById('header-sub').textContent = 'Conectando...';
- 
-try {
-    const res = await fetch(SCRIPT_URL + '?action=read');
-    
-    // VERIFICAÇÃO TEMPORÁRIA PARA DEBUG:
-    const textoPuro = await res.text();
-    console.log("Resposta do servidor:", textoPuro); 
-    const data = JSON.parse(textoPuro);
-    // ...
-
-    if (!data.ok) throw new Error(data.error || 'Erro desconhecido');
-    species = data.species;
-    pending = {};
+  try {
+    const res  = await fetch(SCRIPT_URL + '?action=read');
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error);
+    species  = data.species;
+    pending  = {};
     lastSync = new Date();
-    document.getElementById('header-sub').textContent = species.length + ' espécies carregadas';
-    setSyncStatus();
-    updateSaveBtn();
-    showRegState('content');
+    document.getElementById('header-sub').textContent = species.length + ' espécies';
+    setSyncStatus(); updateSaveBtn(); showRegState('content');
     renderList();
-    if (currentTab === 'consultar') renderCalendar();
-    if (currentTab === 'stats') renderStats();
+    populateGallerySelect();
+    if (currentTab==='consultar') renderCalendar();
+    if (currentTab==='stats') renderStats();
   } catch(e) {
-    document.getElementById('reg-error-msg').textContent = 'Erro ao conectar: ' + e.message;
+    document.getElementById('reg-error-msg').textContent = 'Erro: ' + e.message;
     showRegState('error');
     document.getElementById('header-sub').textContent = 'Erro de conexão';
   }
@@ -611,62 +368,66 @@ try {
 }
 
 function showRegState(s) {
-  document.getElementById('reg-loading').style.display = s === 'loading' ? 'flex' : 'none';
-  document.getElementById('reg-error').style.display = s === 'error' ? 'flex' : 'none';
-  document.getElementById('reg-content').style.display = s === 'content' ? 'flex' : 'none';
+  document.getElementById('reg-loading').style.display = s==='loading'?'flex':'none';
+  document.getElementById('reg-error').style.display   = s==='error'  ?'flex':'none';
+  document.getElementById('reg-content').style.display = s==='content'?'flex':'none';
 }
-function setReloadSpin(on) {
-  document.getElementById('reload-icon').className = on ? 'spinning' : '';
-}
-function getMonths(s) {
-  return pending.hasOwnProperty(s.rowIndex) ? pending[s.rowIndex] : s.months;
-}
+function setReloadSpin(on){ document.getElementById('reload-icon').className = on?'spinning':''; }
+function getMonths(s){ return pending.hasOwnProperty(s.rowIndex)?pending[s.rowIndex]:s.months; }
 
-// LIST
+// ── LIST ─────────────────────────────────────────────────────
 function renderList() {
-  const q = (document.getElementById('search-input').value || '').toLowerCase();
-  const filtered = species.filter(s =>
-    s.name.toLowerCase().includes(q) ||
-    (s.sci||'').toLowerCase().includes(q) ||
-    (s.fam||'').toLowerCase().includes(q)
-  );
+  const q = (document.getElementById('search-input').value||'').toLowerCase();
+  const filtered = species.filter(s=>
+    s.name.toLowerCase().includes(q)||(s.sci||'').toLowerCase().includes(q)||(s.fam||'').toLowerCase().includes(q));
   const list = document.getElementById('species-list');
-  if (!filtered.length) {
-    list.innerHTML = '<div style="text-align:center;padding:32px;font-size:13px;color:var(--text-ter)">Nenhuma espécie encontrada</div>';
-    return;
+  if (!filtered.length){
+    list.innerHTML='<div style="text-align:center;padding:32px;font-size:13px;color:var(--text3)">Nenhuma espécie encontrada</div>'; return;
   }
-  list.innerHTML = filtered.map(s => {
-    const months = getMonths(s);
-    const isPending = pending.hasOwnProperty(s.rowIndex);
-    const thumb = s.photo && s.photo.startsWith('http')
+  list.innerHTML = filtered.map(s=>{
+    const months = getMonths(s), isPend = pending.hasOwnProperty(s.rowIndex);
+    const thumb  = s.photo&&s.photo.startsWith('http')
       ? `<img src="${s.photo}" onerror="this.style.display='none'" alt="" loading="lazy">`
-      : '<span style="font-size:9px">sem foto</span>';
-    const badge = months.length
-      ? `<span class="badge ${isPending?'pending':''}">${months.length} ${months.length===1?'mês':'meses'}${isPending?' ●':''}</span>`
-      : isPending ? '<span class="badge pending">editado ●</span>' : '';
+      : '<span style="font-size:10px">sem foto</span>';
+    const badge  = months.length
+      ? `<span class="badge ${isPend?'pending':''}">${months.length} ${months.length===1?'mês':'meses'}${isPend?' ●':''}</span>`
+      : isPend?'<span class="badge pending">editado ●</span>':'';
     return `<div class="species-card" onclick="openModal(${s.rowIndex})">
       <div class="species-thumb">${thumb}</div>
       <div class="species-info">
         <div class="species-name">${s.name}</div>
         <div class="species-sci">${s.sci||''}</div>
         <div class="species-fam">${s.fam||''}</div>
-      </div>
-      ${badge}
+      </div>${badge}
     </div>`;
   }).join('');
 }
 
-// MODAL
+// ── MODAL ────────────────────────────────────────────────────
 function openModal(rowIndex) {
-  currentSpecies = species.find(s => s.rowIndex === rowIndex);
+  currentSpecies = species.find(s=>s.rowIndex===rowIndex);
   selectingMonths = [...getMonths(currentSpecies)];
   document.getElementById('modal-name').textContent = currentSpecies.name;
-  document.getElementById('modal-sci').textContent = currentSpecies.sci || '';
-  document.getElementById('modal-fam').textContent = currentSpecies.fam || '';
-  const img = document.getElementById('modal-img');
-  img.innerHTML = currentSpecies.photo && currentSpecies.photo.startsWith('http')
-    ? `<img src="${currentSpecies.photo}" onerror="this.parentNode.innerHTML='<span style=font-size:10px;color:var(--text-ter)>sem foto</span>'" alt="">`
-    : '<span style="font-size:10px;color:var(--text-ter)">sem foto</span>';
+  document.getElementById('modal-sci').textContent  = currentSpecies.sci||'';
+  document.getElementById('modal-fam').textContent  = currentSpecies.fam||'';
+
+  // Hero
+  const heroImg   = document.getElementById('hero-img');
+  const heroEmpty = document.getElementById('hero-empty');
+  if (currentSpecies.photo&&currentSpecies.photo.startsWith('http')) {
+    heroImg.src = currentSpecies.photo;
+    heroImg.style.display = 'block';
+    heroEmpty.style.display = 'none';
+  } else {
+    heroImg.style.display = 'none';
+    heroEmpty.style.display = 'flex';
+  }
+
+  // Reset upload
+  clearUpload();
+  document.getElementById('upload-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('upload-progress').classList.remove('show');
+
   renderMonthsGrid();
   document.getElementById('modal').classList.add('open');
   updateConfirmBtn();
@@ -674,192 +435,289 @@ function openModal(rowIndex) {
 
 function renderMonthsGrid() {
   const orig = currentSpecies.months;
-  document.getElementById('months-grid').innerHTML = MONTHS.map((m,i) => {
-    const sel = selectingMonths.includes(i);
-    const has = orig.includes(i);
-    const cls = sel ? 'month-btn sel' : has ? 'month-btn has' : 'month-btn';
-    return `<button class="${cls}" onclick="toggleMonth(${i})">${m}</button>`;
+  document.getElementById('months-grid').innerHTML = MONTHS.map((m,i)=>{
+    const sel=selectingMonths.includes(i), has=orig.includes(i);
+    return `<button class="month-btn ${sel?'sel':has?'has':''}" onclick="toggleMonth(${i})">${m}</button>`;
   }).join('');
 }
 
-function toggleMonth(i) {
-  const idx = selectingMonths.indexOf(i);
-  if (idx >= 0) selectingMonths.splice(idx,1); else selectingMonths.push(i);
-  renderMonthsGrid();
-  updateConfirmBtn();
+function toggleMonth(i){
+  const idx=selectingMonths.indexOf(i);
+  if(idx>=0) selectingMonths.splice(idx,1); else selectingMonths.push(i);
+  renderMonthsGrid(); updateConfirmBtn();
 }
 
-function updateConfirmBtn() {
-  const orig = currentSpecies.months;
-  const changed = JSON.stringify([...selectingMonths].sort((a,b)=>a-b)) !== JSON.stringify([...orig].sort((a,b)=>a-b));
-  const btn = document.getElementById('btn-confirm');
-  btn.disabled = !changed;
-  if (!changed) { btn.textContent = 'Sem alterações'; return; }
-  const added = selectingMonths.filter(m=>!orig.includes(m)).length;
-  const removed = orig.filter(m=>!selectingMonths.includes(m)).length;
-  const parts = [];
-  if (added) parts.push(`+${added} mês${added>1?'es':''}`);
-  if (removed) parts.push(`-${removed} mês${removed>1?'es':''}`);
-  btn.textContent = `Confirmar (${parts.join(', ')})`;
+function updateConfirmBtn(){
+  const orig=currentSpecies.months;
+  const changed=JSON.stringify([...selectingMonths].sort((a,b)=>a-b))!==JSON.stringify([...orig].sort((a,b)=>a-b));
+  const btn=document.getElementById('btn-confirm');
+  btn.disabled=!changed&&!pendingFile;
+  if (!changed&&!pendingFile){btn.textContent='Sem alterações';return;}
+  const parts=[];
+  const added=selectingMonths.filter(m=>!orig.includes(m)).length;
+  const removed=orig.filter(m=>!selectingMonths.includes(m)).length;
+  if(added) parts.push(`+${added}`);
+  if(removed) parts.push(`-${removed}`);
+  if(pendingFile) parts.push('📷 foto');
+  btn.textContent=`Confirmar${parts.length?' ('+parts.join(', ')+')':''}`;
 }
 
-function confirmRecord() {
-  pending[currentSpecies.rowIndex] = [...selectingMonths].sort((a,b)=>a-b);
+async function confirmRecord() {
+  // 1. Upload de foto se houver
+  if (pendingFile) {
+    document.getElementById('upload-progress').classList.add('show');
+    document.getElementById('progress-fill').style.width = '30%';
+    document.getElementById('progress-label').textContent = 'Enviando foto para o Drive...';
+    try {
+      const date     = document.getElementById('upload-date').value || new Date().toISOString().split('T')[0];
+      const monthIdx = selectingMonths.length > 0 ? selectingMonths[selectingMonths.length-1] : new Date().getMonth();
+      const res  = await fetch(SCRIPT_URL, {
+        method:'POST',
+        body: JSON.stringify({
+          action:'upload',
+          data: pendingFileB64,
+          mimeType: pendingFileMime,
+          species: currentSpecies.name,
+          date: date,
+          month: monthIdx
+        })
+      });
+      document.getElementById('progress-fill').style.width = '80%';
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error);
+      document.getElementById('progress-fill').style.width = '100%';
+      document.getElementById('progress-label').textContent = 'Foto salva no Drive!';
+      await new Promise(r=>setTimeout(r,600));
+    } catch(e) {
+      showToast('Erro no upload: ' + e.message);
+      document.getElementById('upload-progress').classList.remove('show');
+      return;
+    }
+  }
+
+  // 2. Registra meses se houver mudança
+  const orig=currentSpecies.months;
+  const changed=JSON.stringify([...selectingMonths].sort((a,b)=>a-b))!==JSON.stringify([...orig].sort((a,b)=>a-b));
+  if (changed) {
+    pending[currentSpecies.rowIndex] = [...selectingMonths].sort((a,b)=>a-b);
+    updateSaveBtn(); setSyncStatus();
+  }
+
   closeModal();
   renderList();
-  updateSaveBtn();
-  setSyncStatus();
-  showToast('Alteração salva — toque em "Salvar" para gravar na planilha');
+  const msgs=[];
+  if(pendingFile) msgs.push('Foto salva no Drive');
+  if(changed) msgs.push('Meses atualizados — toque em Salvar');
+  showToast(msgs.join(' · ')||'Sem alterações');
 }
 
-function closeModal() {
+function closeModal(){
   document.getElementById('modal').classList.remove('open');
-  currentSpecies = null; selectingMonths = [];
+  currentSpecies=null; selectingMonths=[];
+  clearUpload();
 }
-function closeModalOutside(e) {
-  if (e.target === document.getElementById('modal')) closeModal();
+function closeModalOutside(e){if(e.target===document.getElementById('modal'))closeModal();}
+
+// ── UPLOAD ────────────────────────────────────────────────────
+function triggerFileInput(){ document.getElementById('file-input').click(); }
+
+function handleFileSelect(e){
+  const file = e.target.files[0];
+  if (!file) return;
+  pendingFile = file;
+  pendingFileMime = file.type;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const dataUrl = ev.target.result;
+    pendingFileB64 = dataUrl.split(',')[1];
+    document.getElementById('preview-img').src = dataUrl;
+    document.getElementById('upload-preview').classList.add('show');
+    document.getElementById('btn-pick').style.display = 'none';
+    updateConfirmBtn();
+  };
+  reader.readAsDataURL(file);
 }
 
-// SAVE
-async function saveChanges() {
-  const entries = Object.entries(pending);
-  if (!entries.length) return;
-  document.getElementById('saving-overlay').classList.add('open');
-  document.getElementById('saving-msg').textContent = `Salvando ${entries.length} alteração${entries.length>1?'ões':''}...`;
-  const changes = entries.map(([ri, months]) => ({ rowIndex: parseInt(ri), months }));
+function clearUpload(){
+  pendingFile=null; pendingFileB64=null; pendingFileMime=null;
+  document.getElementById('file-input').value='';
+  document.getElementById('preview-img').src='';
+  document.getElementById('upload-preview').classList.remove('show');
+  document.getElementById('btn-pick').style.display='flex';
+  document.getElementById('upload-progress').classList.remove('show');
+  if(currentSpecies) updateConfirmBtn();
+}
+
+// ── GALERIA ───────────────────────────────────────────────────
+function populateGallerySelect(){
+  const sel = document.getElementById('gallery-select');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">Selecione uma espécie...</option>' +
+    species.map(s=>`<option value="${s.name.replace(/"/g,'&quot;')}">${s.name}</option>`).join('');
+  if (cur) sel.value = cur;
+}
+
+async function loadGallery(){
+  const speciesName = document.getElementById('gallery-select').value;
+  const content = document.getElementById('gallery-content');
+  if (!speciesName){
+    content.className='gallery-empty';
+    content.innerHTML='<span style="font-size:32px">📷</span><p>Selecione uma espécie para ver os avistamentos registrados</p>';
+    return;
+  }
+  content.className='gallery-empty';
+  content.innerHTML='<div class="spinner"></div><p>Carregando fotos...</p>';
   try {
-    const res = await fetch(SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify({ action: 'write', changes })
-    });
+    const res  = await fetch(`${SCRIPT_URL}?action=listPhotos&species=${encodeURIComponent(speciesName)}`);
     const data = await res.json();
-    if (!data.ok) throw new Error(data.error || 'Erro ao salvar');
-    changes.forEach(({ rowIndex, months }) => {
-      const s = species.find(x => x.rowIndex === rowIndex);
-      if (s) s.months = months;
-    });
-    pending = {};
-    lastSync = new Date();
-    document.getElementById('saving-overlay').classList.remove('open');
-    updateSaveBtn();
-    setSyncStatus();
-    renderList();
-    if (currentTab === 'consultar') renderCalendar();
-    if (currentTab === 'stats') renderStats();
-    showToast(`${data.saved} linha${data.saved>1?'s':''} salva${data.saved>1?'s':''} na planilha!`);
-  } catch(e) {
-    document.getElementById('saving-overlay').classList.remove('open');
-    showToast('Erro ao salvar: ' + e.message);
+    if (!data.ok) throw new Error(data.error);
+    renderGallery(data.photos, speciesName);
+  } catch(e){
+    content.innerHTML=`<span style="font-size:24px">⚠️</span><p>Erro ao carregar: ${e.message}</p>`;
   }
 }
 
-function updateSaveBtn() {
-  const n = Object.keys(pending).length;
-  document.getElementById('btn-save').disabled = n === 0;
-  document.getElementById('save-label').textContent = n > 0 ? `Salvar ${n} alteração${n>1?'ões':''}` : 'Salvar na planilha';
+function renderGallery(photos, speciesName){
+  const content = document.getElementById('gallery-content');
+  if (!photos.length){
+    content.className='gallery-empty';
+    content.innerHTML=`<span style="font-size:32px">📷</span><p>Nenhuma foto registrada para <em>${speciesName}</em>.<br>Abra a espécie em Registrar e adicione fotos.</p>`;
+    return;
+  }
+  content.className='gallery-grid';
+  content.innerHTML = photos.map((p,i)=>`
+    <div class="gallery-item" onclick="openLightbox(${i})">
+      <img src="${p.thumbUrl}" alt="${speciesName}" loading="lazy" onerror="this.parentNode.style.background='var(--bg3)'">
+      <div class="gallery-caption">
+        <div style="font-weight:500">${p.month||''}</div>
+        <div>${p.date||''}</div>
+      </div>
+    </div>`).join('');
+  // guarda fotos para lightbox
+  content._photos = photos;
+  content._species = speciesName;
 }
 
-function setSyncStatus() {
-  const n = Object.keys(pending).length;
-  document.getElementById('sync-status').textContent = n > 0
-    ? `${n} alteração${n>1?'ões':''} pendente${n>1?'s':''} — não salvo`
-    : lastSync ? 'Sincronizado às ' + lastSync.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) : '—';
+function openLightbox(idx){
+  const content = document.getElementById('gallery-content');
+  const photos  = content._photos;
+  const p       = photos[idx];
+  document.getElementById('lb-title').textContent = content._species;
+  document.getElementById('lb-sub').textContent   = [p.month, p.date].filter(Boolean).join(' · ');
+  document.getElementById('lb-img').src           = p.thumbUrl;
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox(){ document.getElementById('lightbox').classList.remove('open'); }
+
+// ── SAVE ─────────────────────────────────────────────────────
+async function saveChanges(){
+  const entries=Object.entries(pending);
+  if(!entries.length) return;
+  document.getElementById('saving-ov').classList.add('open');
+  document.getElementById('saving-msg').textContent=`Salvando ${entries.length} alteração${entries.length>1?'ões':''}...`;
+  try {
+    const res  = await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'write',changes:entries.map(([ri,months])=>({rowIndex:parseInt(ri),months}))})});
+    const data = await res.json();
+    if(!data.ok) throw new Error(data.error);
+    entries.forEach(([ri,months])=>{ const s=species.find(x=>x.rowIndex==ri); if(s) s.months=months; });
+    pending={};
+    lastSync=new Date();
+    document.getElementById('saving-ov').classList.remove('open');
+    updateSaveBtn(); setSyncStatus(); renderList();
+    if(currentTab==='consultar') renderCalendar();
+    if(currentTab==='stats') renderStats();
+    showToast(`${data.saved} linha${data.saved>1?'s':''} salva${data.saved>1?'s':''} na planilha!`);
+  } catch(e){
+    document.getElementById('saving-ov').classList.remove('open');
+    showToast('Erro ao salvar: '+e.message);
+  }
 }
 
-// CONSULTAR
-function renderCalendar() {
-  const families = [...new Set(species.map(s=>s.fam).filter(Boolean))];
-  document.getElementById('filter-bar').innerHTML =
-    `<button class="chip ${!activeFilter?'active':''}" onclick="setFilter(null,this)">Todos</button>` +
-    families.map(f => `<button class="chip ${activeFilter===f?'active':''}" onclick="setFilter('${f}',this)">${f.replace(/'/g,"\\'")}</button>`).join('');
+function updateSaveBtn(){
+  const n=Object.keys(pending).length;
+  document.getElementById('btn-save').disabled=n===0;
+  document.getElementById('save-label').textContent=n>0?`Salvar ${n} alteração${n>1?'ões':''}`:'Salvar na planilha';
+}
+function setSyncStatus(){
+  const n=Object.keys(pending).length;
+  document.getElementById('sync-status').textContent=n>0
+    ?`${n} alteração${n>1?'ões':''} pendente${n>1?'s':''} — não salvo`
+    :lastSync?'Sincronizado às '+lastSync.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'—';
+}
 
-  const filtered = activeFilter ? species.filter(s=>s.fam===activeFilter) : species;
-  document.getElementById('cal-view').innerHTML = MONTH_NAMES.map((name,mi) => {
-    const animals = filtered.filter(s=>getMonths(s).includes(mi));
-    const pills = animals.length
-      ? animals.map(s => {
-          const img = s.photo && s.photo.startsWith('http')
-            ? `<img src="${s.photo}" onerror="this.style.display='none'" alt="" loading="lazy">`
-            : '';
+// ── CONSULTAR ────────────────────────────────────────────────
+function renderCalendar(){
+  const families=[...new Set(species.map(s=>s.fam).filter(Boolean))];
+  document.getElementById('filter-bar').innerHTML=
+    `<button class="chip ${!activeFilter?'active':''}" onclick="setFilter(null,this)">Todos</button>`+
+    families.map(f=>`<button class="chip ${activeFilter===f?'active':''}" onclick="setFilter('${f.replace(/'/g,"\\'")}',this)">${f}</button>`).join('');
+  const filtered=activeFilter?species.filter(s=>s.fam===activeFilter):species;
+  document.getElementById('cal-view').innerHTML=MONTH_NAMES.map((name,mi)=>{
+    const animals=filtered.filter(s=>getMonths(s).includes(mi));
+    const pills=animals.length
+      ?animals.map(s=>{
+          const img=s.photo&&s.photo.startsWith('http')?`<img src="${s.photo}" onerror="this.style.display='none'" alt="" loading="lazy">`:'';
           return `<div class="pill"><div class="pill-img">${img}</div>${s.name}</div>`;
         }).join('')
-      : '<span class="cal-empty">Sem registros</span>';
+      :'<span class="cal-empty">Sem registros</span>';
     return `<div class="cal-month"><div class="cal-month-title">${name}</div><div class="cal-pills">${pills}</div></div>`;
   }).join('');
 }
+function setFilter(fam){ activeFilter=fam; renderCalendar(); }
 
-function setFilter(fam) {
-  activeFilter = fam;
-  renderCalendar();
-}
-
-// STATS
-function renderStats() {
-  if (!species.length) {
-    document.getElementById('stats-view').innerHTML = '<div style="padding:24px;text-align:center;font-size:13px;color:var(--text-ter)">Carregue a planilha primeiro</div>';
-    return;
-  }
-  const withRec = species.filter(s=>getMonths(s).length>0).length;
-  const totalRec = species.reduce((a,s)=>a+getMonths(s).length,0);
-  const mc = MONTHS.map((m,i)=>({ m, n: species.filter(s=>getMonths(s).includes(i)).length }));
-  const maxC = Math.max(...mc.map(x=>x.n),1);
-  const peak = mc.reduce((a,b)=>b.n>a.n?b:a, mc[0]);
-  const top = [...species].sort((a,b)=>getMonths(b).length-getMonths(a).length).slice(0,3);
-
-  document.getElementById('stats-view').innerHTML = `
+// ── STATS ────────────────────────────────────────────────────
+function renderStats(){
+  if(!species.length){document.getElementById('stats-view').innerHTML='<div style="padding:24px;text-align:center;font-size:13px;color:var(--text3)">Carregue a planilha primeiro</div>';return;}
+  const withRec=species.filter(s=>getMonths(s).length>0).length;
+  const totalRec=species.reduce((a,s)=>a+getMonths(s).length,0);
+  const mc=MONTHS.map((m,i)=>({m,n:species.filter(s=>getMonths(s).includes(i)).length}));
+  const maxC=Math.max(...mc.map(x=>x.n),1);
+  const peak=mc.reduce((a,b)=>b.n>a.n?b:a,mc[0]);
+  const top=[...species].sort((a,b)=>getMonths(b).length-getMonths(a).length).slice(0,3);
+  document.getElementById('stats-view').innerHTML=`
     <div class="stats-grid">
       <div class="stat-card"><div class="stat-lbl">Espécies</div><div class="stat-val">${withRec}</div><div class="stat-sub">de ${species.length} cadastradas</div></div>
       <div class="stat-card"><div class="stat-lbl">Registros</div><div class="stat-val">${totalRec}</div><div class="stat-sub">mês × espécie</div></div>
     </div>
     <div class="stat-card" style="margin-bottom:10px;">
       <div class="stat-lbl">Mês mais ativo</div>
-      <div class="stat-val" style="font-size:22px;">${peak.m}</div>
+      <div class="stat-val" style="font-size:22px">${peak.m}</div>
       <div class="stat-sub">${peak.n} espécie${peak.n!==1?'s':''} avistada${peak.n!==1?'s':''}</div>
     </div>
     <div class="stat-card" style="margin-bottom:10px;">
-      <div class="stat-lbl" style="margin-bottom:10px;">Avistamentos por mês</div>
-      ${mc.map(x=>`<div class="bar-row">
-        <span class="bar-lbl">${x.m}</span>
-        <div class="bar-track"><div class="bar-fill" style="width:${Math.round(x.n/maxC*100)}%"></div></div>
-        <span class="bar-n">${x.n}</span>
-      </div>`).join('')}
+      <div class="stat-lbl" style="margin-bottom:10px">Avistamentos por mês</div>
+      ${mc.map(x=>`<div class="bar-row"><span class="bar-lbl">${x.m}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.round(x.n/maxC*100)}%"></div></div><span class="bar-n">${x.n}</span></div>`).join('')}
     </div>
-    ${top.length ? `<div class="stat-card">
-      <div class="stat-lbl" style="margin-bottom:10px;">Mais presentes no ano</div>
+    ${top.length?`<div class="stat-card"><div class="stat-lbl" style="margin-bottom:10px">Mais presentes no ano</div>
       ${top.map((s,i)=>`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-        <span style="font-size:12px;color:var(--text-ter);width:16px;">${i+1}</span>
-        <span style="font-size:13px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.name}</span>
+        <span style="font-size:12px;color:var(--text3);width:16px">${i+1}</span>
+        <span style="font-size:13px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.name}</span>
         <span class="badge">${getMonths(s).length} ${getMonths(s).length===1?'mês':'meses'}</span>
       </div>`).join('')}
-    </div>` : ''}`;
+    </div>`:''}`;
 }
 
-// NAV
-function switchTab(tab, btn) {
-  currentTab = tab;
+// ── NAV ──────────────────────────────────────────────────────
+function switchTab(tab,btn){
+  currentTab=tab;
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('screen-'+tab).classList.add('active');
   btn.classList.add('active');
-  if (tab==='consultar') renderCalendar();
-  if (tab==='stats') renderStats();
+  document.getElementById('bottom-bar').style.display=tab==='galeria'?'none':'block';
+  if(tab==='consultar') renderCalendar();
+  if(tab==='stats') renderStats();
 }
 
-// TOAST
-function showToast(msg) {
+// ── UTILS ─────────────────────────────────────────────────────
+function showToast(msg){
   document.querySelectorAll('.toast').forEach(t=>t.remove());
-  const t = document.createElement('div');
-  t.className = 'toast';
-  t.textContent = msg;
+  const t=document.createElement('div'); t.className='toast'; t.textContent=msg;
   document.querySelector('.app').appendChild(t);
-  setTimeout(()=>t.remove(), 3000);
+  setTimeout(()=>t.remove(),3000);
 }
 
-// SERVICE WORKER
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(()=>{});
-}
-
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 loadData();
 </script>
 </body>
